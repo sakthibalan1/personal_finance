@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Management System</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Welcome to Financial Management System</h1>
+
+    <!-- Add Income Form -->
+    <div id="addIncomeForm">
+        <h2>Add Income</h2>
+        <label for="incomeSource">Income Source:</label>
+        <input type="text" id="incomeSource" required>
+        <br>
+        <label for="incomeAmount">Amount:</label>
+        <input type="text" id="incomeAmount" required>
+        <br>
+        <button onclick="addIncome()">Add Income</button>
+    </div>
+
+    <!-- Add Expense Form -->
+    <div id="addExpenseForm">
+        <h2>Add Expense</h2>
+        <label for="expenseName">Expense Name:</label>
+        <input type="text" id="expenseName" required>
+        <br>
+        <label for="expenseAmount">Amount:</label>
+        <input type="text" id="expenseAmount" required>
+        <br>
+        <button onclick="addExpense()">Add Expense</button>
+    </div>
+
+    <!-- Add Investment Form -->
+    <div id="addInvestmentForm">
+        <h2>Add Investment</h2>
+        <label for="investmentName">Investment Name:</label>
+        <input type="text" id="investmentName" required>
+        <br>
+        <label for="investmentAmount">Amount:</label>
+        <input type="text" id="investmentAmount" required>
+        <br>
+        <button onclick="addInvestment()">Add Investment</button>
+    </div>
+<!-- Add Delete Investment Form -->
+<div id="deleteInvestmentForm">
+    <h2>Delete Investment</h2>
+    <label for="deleteInvestmentName">Investment Name:</label>
+    <input type="text" id="deleteInvestmentName" required>
+    <br>
+    <button onclick="deleteInvestment()">Delete Investment</button>
+</div>
+
+    <!-- Display Balances -->
+    <div id="balances">
+        <h2>Balances</h2>
+        <p id="balance"></p>
+    </div>
+
+    <!-- Display Incomes -->
+    <div id="viewincomes">
+        <h2>Incomes</h2>
+        <ul id="incomeList"></ul>
+    </div>
+
+    <!-- Display Expenses -->
+    <div id="viewexpense">
+        <h2>Expenses</h2>
+        <ul id="expenseList"></ul>
+    </div>
+
+    <!-- Display Investments -->
+    <div id="viewinvestment">
+        <h2>Investments</h2>
+        <ul id="investmentList"></ul>
+    </div>
+
+    <script>
+        // Function to fetch and display balances
+        function displayBalances() {
+            axios.get('http://localhost:8080/balance')
+                .then(response => {
+                    document.getElementById('balance').innerText = response.data;
+                })
+                .catch(error => {
+                    console.error('Error fetching balances:', error);
+                });
+        }
+
+        // Function to add income
+        function addIncome() {
+            var incomeSource = document.getElementById('incomeSource').value;
+            var incomeAmount = document.getElementById('incomeAmount').value;
+
+            axios.post('http://localhost:8080/addincome', {
+                source: incomeSource,
+                amount: incomeAmount
+            })
+            .then(response => {
+                displayBalances();
+                displayIncomes();
+                document.getElementById('incomeSource').value = '';
+                document.getElementById('incomeAmount').value = '';
+            })
+            .catch(error => {
+                console.error('Error adding income:', error);
+            });
+        }
+
+        // Function to add expense
+        function addExpense() {
+            var expenseName = document.getElementById('expenseName').value;
+            var expenseAmount = document.getElementById('expenseAmount').value;
+
+            axios.post('http://localhost:8080/addexpense', {
+                name: expenseName,
+                amount: expenseAmount
+            })
+            .then(response => {
+                displayBalances();
+                displayExpenses();
+                document.getElementById('expenseName').value = '';
+                document.getElementById('expenseAmount').value = '';
+            })
+            .catch(error => {
+                console.error('Error adding expense:', error);
+            });
+        }
+
+        // Function to add investment
+        function addInvestment() {
+            var investmentName = document.getElementById('investmentName').value;
+            var investmentAmount = document.getElementById('investmentAmount').value;
+
+            axios.post('http://localhost:8080/addinvestment', {
+                name: investmentName,
+                amount: investmentAmount
+            })
+            .then(response => {
+                displayBalances();
+                displayInvestments();
+                document.getElementById('investmentName').value = '';
+                document.getElementById('investmentAmount').value = '';
+            })
+            .catch(error => {
+                console.error('Error adding investment:', error);
+            });
+        }
+
+        // Function to fetch and display incomes
+        function displayIncomes() {
+            axios.get('http://localhost:8080/viewincomes')
+                .then(response => {
+                    const incomes = response.data;
+                    const incomeList = document.getElementById('incomeList');
+                    incomeList.innerHTML = '';
+                    for (const [source, amount] of Object.entries(incomes)) {
+                        const listItem = document.createElement('li');
+                        listItem.innerText = `${source}: ${amount}`;
+                        incomeList.appendChild(listItem);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching incomes:', error);
+                });
+        }
+
+        // Function to fetch and display expenses
+        function displayExpenses() {
+            axios.get('http://localhost:8080/expenseview')
+                .then(response => {
+                    const expenses = response.data;
+                    const expenseList = document.getElementById('expenseList');
+                    expenseList.innerHTML = '';
+                    for (const [name, amount] of Object.entries(expenses)) {
+                        const listItem = document.createElement('li');
+                        listItem.innerText = `${name}: ${amount}`;
+                        expenseList.appendChild(listItem);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching expenses:', error);
+                });
+        }
+
+        // Function to fetch and display investments
+        function displayInvestments() {
+            axios.get('http://localhost:8080/investmentview')
+                .then(response => {
+                    const investments = response.data;
+                    const investmentList = document.getElementById('investmentList');
+                    investmentList.innerHTML = '';
+                    for (const [name, amount] of Object.entries(investments)) {
+                        const listItem = document.createElement('li');
+                        listItem.innerText = `${name}: ${amount}`;
+                        investmentList.appendChild(listItem);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching investments:', error);
+                });
+        }
+
+        function deleteInvestment() {
+    var investmentName = document.getElementById('deleteInvestmentName').value;
+
+    axios.delete(`http://localhost:8080/deleteinvestment/${investmentName}`)
+    .then(response => {
+        // Handle success response
+        console.log(response.data);
+        // You may update the UI or display a success message here
+    })
+    .catch(error => {
+        console.error('Error deleting investment:', error);
+        // Handle error, display an error message, etc.
+    });
+}
+
+        // Call the functions to display data when the page loads
+        displayBalances();
+        displayIncomes();
+        displayExpenses();
+        displayInvestments();
+        deleteInvestment();
+
+        function deleteInvestment() {
+    var investmentName = document.getElementById('deleteInvestmentName').value;
+
+    axios.delete(`http://localhost:8080/deleteinvestment/${investmentName}`)
+    .then(response => {
+        // Handle success response
+        console.log(response.data);
+        // You may update the UI or display a success message here
+    })
+    .catch(error => {
+        console.error('Error deleting investment:', error);
+        // Handle error, display an error message, etc.
+    });
+}
+
+    </script>
+</body>
+</html>
